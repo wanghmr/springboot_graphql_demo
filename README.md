@@ -1,0 +1,3 @@
+# springboot_graphql_demo
+springboot整合graphQL,JAVA语言
+这是graphQL的一个demo
