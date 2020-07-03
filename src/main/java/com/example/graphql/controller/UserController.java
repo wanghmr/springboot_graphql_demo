@@ -14,13 +14,17 @@ import java.util.Map;
  */
 @Controller
 public class UserController {
+
+    private final GraphQL graphQL;
     @Autowired
-    private GraphQL graphQL;
+    public UserController(GraphQL graphQl) {
+        this.graphQL = graphQl;
+    }
 
     @GetMapping("/graphql")
     @ResponseBody
     public Map<String,Object> graphql(){
-        String query = null;
+        String query;
 //        query = "{user(id:1){id,name}}";
         query = "{card(id:1){id,address}}";
         return graphQL.execute(query).toSpecification();

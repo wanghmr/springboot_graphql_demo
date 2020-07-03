@@ -1,4 +1,4 @@
-package com.example.graphql.GraphQLProvider;
+package com.example.graphql.graphqlprovider;
 
 import com.example.graphql.pojo.Card;
 import com.example.graphql.pojo.User;
@@ -22,30 +22,43 @@ import java.io.FileNotFoundException;
  * Description:
  */
 @Component
-public class GraphQLProvider {
+public class GraphQlProvider {
 
+    private GraphQL graphQl;
+
+    /**
+     * 给spring注入配置好的GraphQL 外面可以调用
+     */
     @Bean
-    public GraphQL graphQL() {
-        return this.graphQL;
+    public GraphQL graphQl() {
+        return this.graphQl;
     }
 
-    private GraphQL graphQL;
-
+    /**
+     * 实现对GraphQL对象的初始化
+     *
+     * @throws FileNotFoundException 异常
+     */
     @PostConstruct
     public void init() throws FileNotFoundException {
         //加载resources目录下的文件
         File file = ResourceUtils.getFile("classpath:graphqls/user.graphqls");
         //创建GraphQLSchema
-        GraphQLSchema graphQLSchema = createGraphQLSchema(file);
+        GraphQLSchema graphQlSchema = createGraphQlSchema(file);
         //创建GraphQL
-        this.graphQL = GraphQL.newGraphQL(graphQLSchema).build();
+        this.graphQl = GraphQL.newGraphQL(graphQlSchema).build();
     }
 
-
-    public GraphQLSchema createGraphQLSchema(File file) {
+    /**
+     * 通过读取的.graphqls文件构建Schema
+     *
+     * @param file 文件
+     * @return Schema
+     */
+    private GraphQLSchema createGraphQlSchema(File file) {
         //模式解析器
         SchemaParser schemaParser = new SchemaParser();
-        //解析器解析graphqls文件,返回类型定义注册表
+        //解析器解析.graphqls文件,返回类型定义注册表
         TypeDefinitionRegistry typeRegistry = schemaParser.parse(file);
 
         //创建模式生成器
@@ -53,19 +66,32 @@ public class GraphQLProvider {
         return schemaGenerator.makeExecutableSchema(typeRegistry, buildResolver());
     }
 
-    public RuntimeWiring buildResolver() {
+    /**
+     * 设置查找到的数据
+     * @return RuntimeWiring
+     */
+    private RuntimeWiring buildResolver() {
         return RuntimeWiring.newRuntimeWiring()
+                //UserQuery：schema中定义的查询类型名称
                 .type("UserQuery", builder ->
+                        //user：查询类型中对象类型的名称
                         builder.dataFetcher("user",
                                 dataFetchingEnvironment -> {
+                                    //id：该对象设置的查询参数名
                                     Long id = dataFetchingEnvironment.getArgument("id");
+                                    //此处应该查询数据库（省略...）
+
+                                    /*
+                                     * 返回查询结果
+                                     * 注意：返回的对象的类型 必须和查询时名称对应的实体类类型一致 不然会返回null
+                                     * 这里指.graphqls文件中 以user进行查询会对应的类型User,类型User对应实体类User 所以不许返回User的对象
+                                     */
                                     return new User(id, "springboot+graphql", 15);
                                 }).dataFetcher("card",
                                 dataFetchingEnvironment -> {
                                     Long id = dataFetchingEnvironment.getArgument("id");
                                     return new Card(id, "futian");
                                 })
-
                 ).build();
     }
 
