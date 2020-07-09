@@ -8,11 +8,16 @@ import lombok.Data;
  * Description:
  */
 @Data
-public class User {
-    private Long id;
+public class Teacher {
+    private Integer id;
     private String name;
+    private String gender;
     private Integer age;
-    public User(Long id, String name, Integer age) {
+    private String address;
+    private String phone;
+    private String email;
+
+    public Teacher(Integer id, String name, Integer age) {
         this.id = id;
         this.name = name;
         this.age = age;

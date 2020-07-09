@@ -1,7 +1,8 @@
 package com.example.graphql.graphqlprovider;
 
-import com.example.graphql.pojo.Card;
-import com.example.graphql.pojo.User;
+
+import com.example.graphql.pojo.Student;
+import com.example.graphql.pojo.Teacher;
 import graphql.GraphQL;
 import graphql.schema.GraphQLSchema;
 import graphql.schema.idl.RuntimeWiring;
@@ -11,7 +12,6 @@ import graphql.schema.idl.TypeDefinitionRegistry;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ResourceUtils;
-
 import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -42,7 +42,7 @@ public class GraphQlProvider {
     @PostConstruct
     public void init() throws FileNotFoundException {
         //加载resources目录下的文件
-        File file = ResourceUtils.getFile("classpath:graphqls/user.graphqls");
+        File file = ResourceUtils.getFile("classpath:graphqls/teacher.graphqls");
         //创建GraphQLSchema
         GraphQLSchema graphQlSchema = createGraphQlSchema(file);
         //创建GraphQL
@@ -67,18 +67,18 @@ public class GraphQlProvider {
     }
 
     /**
-     * 设置查找到的数据
+     * 设置查找到的数据-----无客户端
      * @return RuntimeWiring
      */
     private RuntimeWiring buildResolver() {
         return RuntimeWiring.newRuntimeWiring()
-                //UserQuery：schema中定义的查询类型名称
-                .type("UserQuery", builder ->
-                        //user：查询类型中对象类型的名称
-                        builder.dataFetcher("user",
+                //TeacherQuery：schema中定义的查询类型名称
+                .type("TeacherQuery", builder ->
+                        //teacher：查询类型中对象类型的名称
+                        builder.dataFetcher("teacher",
                                 dataFetchingEnvironment -> {
                                     //id：该对象设置的查询参数名
-                                    Long id = dataFetchingEnvironment.getArgument("id");
+                                    int id = dataFetchingEnvironment.getArgument("id");
                                     //此处应该查询数据库（省略...）
 
                                     /*
@@ -86,11 +86,11 @@ public class GraphQlProvider {
                                      * 注意：返回的对象的类型 必须和查询时名称对应的实体类类型一致 不然会返回null
                                      * 这里指.graphqls文件中 以user进行查询会对应的类型User,类型User对应实体类User 所以不许返回User的对象
                                      */
-                                    return new User(id, "springboot+graphql", 15);
-                                }).dataFetcher("card",
+                                    return new Teacher(id, "springboot+graphql", 15);
+                                }).dataFetcher("student",
                                 dataFetchingEnvironment -> {
-                                    Long id = dataFetchingEnvironment.getArgument("id");
-                                    return new Card(id, "futian");
+                                    int id = dataFetchingEnvironment.getArgument("id");
+                                    return new Student(id, "北京");
                                 })
                 ).build();
     }

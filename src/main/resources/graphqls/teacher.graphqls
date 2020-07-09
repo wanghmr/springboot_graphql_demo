@@ -1,0 +1,19 @@
+schema {
+    query:TeacherQuery
+}
+
+type TeacherQuery {
+    teacher(id:Int):Teacher
+    student(id:Int ):Student
+}
+
+type Teacher{
+    id:Int!
+    name:String
+    age:Int
+}
+
+type Student{
+    id:Int
+    address:String
+}
