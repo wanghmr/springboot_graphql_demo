@@ -90,7 +90,7 @@ public class GraphQlProvider {
                                 }).dataFetcher("student",
                                 dataFetchingEnvironment -> {
                                     int id = dataFetchingEnvironment.getArgument("id");
-                                    return new Student(id, "北京");
+                                    return new Student(id,"小明", "北京");
                                 })
                 ).build();
     }

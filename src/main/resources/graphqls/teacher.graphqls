@@ -11,9 +11,11 @@ type Teacher{
     id:Int!
     name:String
     age:Int
+    content:[Student]
 }
 
 type Student{
     id:Int
+    name:String
     address:String
 }
