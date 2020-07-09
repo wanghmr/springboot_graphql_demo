@@ -1,6 +1,6 @@
 package com.example.graphql.graphqlprovider;
 
-
+import com.example.graphql.datafetchers.TeacherDataFeather;
 import com.example.graphql.pojo.Student;
 import com.example.graphql.pojo.Teacher;
 import graphql.GraphQL;
@@ -9,12 +9,16 @@ import graphql.schema.idl.RuntimeWiring;
 import graphql.schema.idl.SchemaGenerator;
 import graphql.schema.idl.SchemaParser;
 import graphql.schema.idl.TypeDefinitionRegistry;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ResourceUtils;
+
 import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.FileNotFoundException;
+
+import static graphql.schema.idl.TypeRuntimeWiring.newTypeWiring;
 
 /**
  * @author wh
@@ -25,6 +29,9 @@ import java.io.FileNotFoundException;
 public class GraphQlProvider {
 
     private GraphQL graphQl;
+    private GraphQLSchema graphQLSchema;
+    @Autowired
+    private TeacherDataFeather teacherDataFeather;
 
     /**
      * 给spring注入配置好的GraphQL 外面可以调用
@@ -32,6 +39,11 @@ public class GraphQlProvider {
     @Bean
     public GraphQL graphQl() {
         return this.graphQl;
+    }
+
+    @Bean
+    public GraphQLSchema graphQLSchema() {
+        return this.graphQLSchema;
     }
 
     /**
@@ -44,9 +56,9 @@ public class GraphQlProvider {
         //加载resources目录下的文件
         File file = ResourceUtils.getFile("classpath:graphqls/teacher.graphqls");
         //创建GraphQLSchema
-        GraphQLSchema graphQlSchema = createGraphQlSchema(file);
+        graphQLSchema = createGraphQlSchema(file);
         //创建GraphQL
-        this.graphQl = GraphQL.newGraphQL(graphQlSchema).build();
+        this.graphQl = GraphQL.newGraphQL(graphQLSchema).build();
     }
 
     /**
@@ -67,15 +79,15 @@ public class GraphQlProvider {
     }
 
     /**
-     * 设置查找到的数据-----无客户端
+     * 设置查找到的数据
+     *
      * @return RuntimeWiring
      */
     private RuntimeWiring buildResolver() {
         return RuntimeWiring.newRuntimeWiring()
-                //TeacherQuery：schema中定义的查询类型名称
-                .type("TeacherQuery", builder ->
-                        //teacher：查询类型中对象类型的名称
-                        builder.dataFetcher("teacher",
+                .type(newTypeWiring("Query")
+                        //无客户端（只是一个例子）
+                        .dataFetcher("teacher",
                                 dataFetchingEnvironment -> {
                                     //id：该对象设置的查询参数名
                                     int id = dataFetchingEnvironment.getArgument("id");
@@ -87,12 +99,18 @@ public class GraphQlProvider {
                                      * 这里指.graphqls文件中 以user进行查询会对应的类型User,类型User对应实体类User 所以不许返回User的对象
                                      */
                                     return new Teacher(id, "springboot+graphql", 15);
-                                }).dataFetcher("student",
+                                })
+                        .dataFetcher("student",
                                 dataFetchingEnvironment -> {
                                     int id = dataFetchingEnvironment.getArgument("id");
-                                    return new Student(id,"小明", "北京");
+                                    return new Student(id, "小明", "北京");
                                 })
-                ).build();
+
+                        //有客户端（前后端分离）
+                        .dataFetcher("findList", teacherDataFeather.getList())
+                )
+                .build();
+
     }
 
 

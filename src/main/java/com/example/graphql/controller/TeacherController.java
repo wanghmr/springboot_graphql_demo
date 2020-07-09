@@ -1,11 +1,13 @@
 package com.example.graphql.controller;
 
+import com.example.graphql.service.TeacherServiceImpl;
 import graphql.GraphQL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+
 import java.util.Map;
 
 /**
@@ -15,13 +17,15 @@ import java.util.Map;
  */
 @Controller
 @RequestMapping("/graphql")
-public class UserController {
+public class TeacherController {
 
     private final GraphQL graphQL;
     @Autowired
-    public UserController(GraphQL graphQl) {
+    public TeacherController(GraphQL graphQl) {
         this.graphQL = graphQl;
     }
+    @Autowired
+    private TeacherServiceImpl teacherServiceImpl;
 
     /**
      * 无客户端的例子
@@ -45,6 +49,16 @@ public class UserController {
         String query;
         query = "{student(id:1){id,address}}";
         return graphQL.execute(query).toSpecification();
+    }
+
+    /**
+     * 客户端的例子
+     * @return
+     */
+    @GetMapping("/findAll")
+    @ResponseBody
+    public Map<String,Object> findAllTeacher(){
+        return teacherServiceImpl.findAll();
     }
 
 

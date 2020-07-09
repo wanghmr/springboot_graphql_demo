@@ -5,13 +5,14 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
  * 程序入口
- * @author wh
  *
+ * @author wh
+ * <p>
  * 路径1：http://localhost:8080/graphql/teacher
  * 路径2：http://localhost:8080/graphql/student
- *
- * 路径3：http://localhost:8080/graphql/student
- *
+ * <p>
+ * 有客户端的路径
+ * 路径3：http://localhost:8080/graphql/findAll
  */
 @SpringBootApplication
 public class Application {
